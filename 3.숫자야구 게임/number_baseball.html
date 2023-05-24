@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>숫자야구</title>
+</head>
+
+<body>
+  <form id="form">
+    <input type="text" id="input">
+    <!-- required input에 아무값도 넣지않고 submit하면 error가 뜬다. -->
+    <!-- minlength="4" 최소길이4 / maxlength="4" 최대길이4 -->
+    <button>확인</button>
+  </form>
+  <div id="logs"></div>
+  <script>
+    const $input = document.querySelector('#input');
+    const $form = document.querySelector('#form');
+    const $logs = document.querySelector('#logs');
+
+    const numbers = [];
+    for (let n = 0; n < 9; n++) { //[1,2,3,4,5,6,7,8,9]
+      numbers.push(n + 1)
+    }
+
+    // 랜덤으로 숫자 4개 뽑기
+    const answer = [];
+    for (let i = 0; i <= 3; i++) {
+      // const index = Math.floor(Math.random() * 9); // undefined가 나올 수 있다
+      const index = Math.floor(Math.random() * numbers.length); // numbers의 랜덤한 index
+      answer.push(numbers[index]); // numbers의 랜덤한 index를 push
+      numbers.splice(index, 1); // 랜덤한 숫자를 answer에 push했으니 numbers배열에서도 넣어 준 숫자 하나 빼기
+      // index 2를 뽑았다
+      // numbers [1,2,,4,5,6,7,8,9]
+      // answer [3]
+      // index 1을 뽑았다
+      // numbers [1,,,4,5,6,7,8,9]
+      // answer [3,2]
+      // index 7을 뽑았다
+      // answer [3,2,undefined]
+    }
+    console.log(answer);
+    // 입력값 검증하기
+    const tries = [];
+    function checkInput(input) {
+      if (input.length !== 4) { // 길이가 4가 아닌지
+        return alert('4자리 숫자를 입력해주세요.');
+      }
+      if (new Set(input).size !== 4) { // 중복된 숫자가 있는지 확인
+        return alert('중복되지 않게 입력해주세요.');
+      }
+      if (tries.includes(input)) { // 이미 시도한 값은 아닌지 확인
+        return alert('이미 시도한 값 입니다.');
+      }
+      return true // 검증을 모두 통과하면 retunr true
+    } // 검사하는 코드
+    // alert의 return값은 undifined이지만 if문안에 들어가면 return false가 된다.
+
+    // form,a태그의 기본동작: 새로고침
+    $form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const value = $input.value; // == event.target[0].value
+      $input.value = '';// input에 입력되어있는 값 지워주기(다음값 쉽게 입력할 수 있도록 편의상 값 제거)
+      if (!checkInput(value)) { // 문제 있음
+        return; // 통과되지 않으면 빠르게 리턴
+      }
+      // 입력값 문제없음
+      if (answer.join('') === value) { // [3,1,4,6] -> join하는 순간 '3,1,4,6' 
+        // 콤마 없애기 join('') -> '3146'으로 변환 
+        // ex.[3,1,4,6].join(':') -> '3:1:4:6'
+        $logs.textContent = '홈런!';
+        return;
+      }
+      if (tries.length >= 9) { // 10번 시도했는가?
+        const message = document.createTextNode(`패배! 정답은 ${answer.join('')}`);
+        $logs.appendChild(message);
+        return;
+      }
+      // 몇 스트라이크 몇 볼인지 검사
+      let strike = 0;
+      let ball = 0;
+      // answer: 3146, value: 1347
+      // 숫자는 있는데 자리가 다르면 ball += 1 // 숫자랑 자리가 같으면 strike += 1
+      for (let i = 0; i < answer.length; i++) {
+        const index = value.indexOf(answer[i]); // answer[index]를 value에서 찾아본다. 겹치는게 있으면 indexOf가 -1보다 크다. // 겹치는게 없으면 -1
+        if (index > -1) { // 일치하는 숫자 발견
+          if (index === i) { // 자릿수도 같음
+            strike += 1;
+          } else { // 숫자만 같음
+            ball += 1;
+          }
+        }
+      }
+      $logs.append(`${value}: ${strike} 스트라이크 ${ball} 볼`, document.createElement('br'))
+      tries.push(value);
+    })
+  </script>
+</body>
+
+</html>
