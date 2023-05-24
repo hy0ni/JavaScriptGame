@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>타이머 사용하기_로또 추첨기</title>
+  <style>
+    .ball {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      margin-right: 20px;
+      line-height: 40px;
+      font-size: 20px;
+      color: #000;
+      text-align: center;
+      border: 2px solid #000;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="result">추첨 결과는? </div>
+  <div id="bonus">보너스: </div>
+
+  <script>
+    const candidata = Array(45).fill().map((el, i) => i + 1);
+    const shuffle = [];
+    // 몇 번 반복해야할지 애매할때는 while반복문을 쓰는게 좋다.
+    while (candidata.length > 0) { // 0~candidata.length까지 한번 반복
+      const random = Math.floor(Math.random() * candidata.length); // 무작위 인덱스 뽑기
+      const spliceArray = candidata.splice(random, 1); //만약에 3이 뽑혔으면 spliceArray에 3을 담는다
+      const value = spliceArray[0]; // spliceArray 들어있는 값이 [3] 배열 하나니까 value에 spliceArray[0]을 담는다
+      shuffle.push(value); // 뽑은 값을 shuffle배열에 담는다
+      // console.log('random', random);
+      // console.log(spliceArray);
+      // console.log(value);
+    }
+    // // console.log('candidata', candidata)
+    // console.log(shuffle)
+
+    // for (let i = candidata.length; i > 0; i--) {
+    //   const random = Math.floor(Math.random() * i);
+    //   const spliceArray = candidata.splice(random, 1);
+    //   const value = spliceArray[0];
+    //   shuffle.push(value);
+    // }
+
+    const winBalls = shuffle.slice(0, 6).sort((a, b) => a - b);
+    const bonus = shuffle[6];
+    console.log(winBalls)
+    const $result = document.querySelector('#result');
+    const $bonus = document.querySelector('#bonus');
+
+    function colorize(number, $tag) {
+      if (number < 10) {
+        $tag.style.backgroundColor = 'red';
+        $tag.style.color = 'white';
+      } else if (number < 20) {
+        $tag.style.backgroundColor = 'orange';
+        $tag.style.color = 'white';
+      } else if (number < 30) {
+        $tag.style.backgroundColor = 'green';
+        $tag.style.color = 'white';
+      } else if (number < 40) {
+        $tag.style.backgroundColor = 'skyblue';
+        $tag.style.color = 'white';
+      } else {
+        $tag.style.backgroundColor = 'pink';
+        $tag.style.color = 'white';
+      }
+    }
+
+    const drawBall = (number, $parent) => {
+      const $ball = document.createElement('div');
+      $ball.className = 'ball';
+      $ball.textContent = number;
+      $parent.appendChild($ball);
+      colorize(number, $ball);
+    }
+    for (let i = 0; i < winBalls.length; i++) {
+      setTimeout(() => {
+        drawBall(winBalls[i], $result);
+      }, 1000 * i);
+    }
+    setTimeout(() => {
+      drawBall(bonus, $bonus);
+    }, 7000);
+
+  </script>
+</body>
+
+</html>
